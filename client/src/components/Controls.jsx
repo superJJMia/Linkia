@@ -9,6 +9,7 @@ import {
   ChatIcon,
   FullscreenIcon,
   FullscreenExitIcon,
+  SettingsIcon,
 } from '../icons.jsx';
 
 export default function Controls({
@@ -23,6 +24,8 @@ export default function Controls({
   toggleChat,
   layout,
   setLayout,
+  menuOpen,
+  onToggleMenu,
 }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -91,6 +94,13 @@ export default function Controls({
         title={isFullscreen ? 'Sair da tela cheia' : 'Tela cheia'}
       >
         {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+      </button>
+      <button
+        className={`control-btn ${menuOpen ? 'active' : ''}`}
+        onClick={onToggleMenu}
+        title="Configurações da sala"
+      >
+        <SettingsIcon />
       </button>
       <button className="control-btn off" onClick={leave} title="Encerrar chamada">
         <HangUpIcon />

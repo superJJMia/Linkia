@@ -57,7 +57,7 @@ export default function RoomMenu({
             <span className="room-code">{roomId}</span>
             <button
               className="room-copy"
-              onClick={() => copy(roomLink, 'code')}
+              onClick={() => copy(roomId, 'code')}
               title="Copiar código"
             >
               {copied === 'code' ? <CheckIcon size={16} /> : <CopyIcon size={16} />}

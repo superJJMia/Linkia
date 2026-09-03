@@ -7,7 +7,6 @@ import VideoGrid from './components/VideoGrid.jsx';
 import Controls from './components/Controls.jsx';
 import ChatPanel from './components/ChatPanel.jsx';
 import RoomMenu from './components/RoomMenu.jsx';
-import { SettingsIcon } from './icons.jsx';
 
 function Starfield() {
   const ref = useRef(null);
@@ -112,13 +111,6 @@ export default function App() {
         <Lobby key="lobby" onEnter={handleEnter} />
       ) : (
         <div className="call animate-in" key="call">
-          <button
-            className={`room-menu-btn ${menuOpen ? 'open' : ''}`}
-            onClick={() => setMenuOpen((v) => !v)}
-            title="Menu da sala"
-          >
-            <SettingsIcon size={22} />
-          </button>
           <div className="call-main">
             <VideoGrid
               myStream={call.localStream}
@@ -156,6 +148,8 @@ export default function App() {
             toggleChat={chat.toggleChat}
             layout={layout}
             setLayout={setLayout}
+            menuOpen={menuOpen}
+            onToggleMenu={() => setMenuOpen((v) => !v)}
           />
           <RoomMenu
             open={menuOpen}

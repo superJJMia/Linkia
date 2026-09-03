@@ -910,37 +910,6 @@ body {
 }
 
 /* ================== MENU DA SALA ================== */
-.room-menu-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 30;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  color: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s, box-shadow 0.4s ease;
-  animation: fadeInScale 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-.room-menu-btn:hover,
-.room-menu-btn.open {
-  border-color: var(--cyan);
-  box-shadow: 0 0 18px var(--glow);
-  transform: translateY(-3px);
-}
-
-.room-menu-btn.open {
-  background: var(--cyan);
-  color: var(--black);
-}
-
 .room-border,
 .room-backdrop {
   position: fixed;
