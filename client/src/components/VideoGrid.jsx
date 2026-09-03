@@ -139,7 +139,15 @@ export default function VideoGrid({
   const hasLocalScreen = screenOn && localScreenStream;
   const totalScreens = (hasLocalScreen ? 1 : 0) + remoteScreens.length;
 
-  const maxTiles = maxTilesFor(width);
+  // Modo destaque (spotlight / auto): tela grande + coluna lateral
+  const hasSpotlight = layout === 'spotlight' || totalScreens > 0;
+
+  // Sem nenhuma tela streamada, o limite sobe para 6 tiles (grade 3x2 fecha
+  // sem deixar espaço vazio). Com tela, mantém o limite de acordo com a largura.
+  const maxTiles = hasSpotlight
+    ? maxTilesFor(width)
+    : Math.max(maxTilesFor(width), 6);
+
   const selectedCams = selectTiles(cameraTiles, maxTiles);
 
   const renderGrid = (tiles) => {
@@ -168,9 +176,6 @@ export default function VideoGrid({
     ];
     return renderGrid(allTiles);
   }
-
-  // Modo destaque (spotlight / auto): tela grande + coluna lateral
-  const hasSpotlight = layout === 'spotlight' || totalScreens > 0;
 
   if (!hasSpotlight) {
     return renderGrid(selectedCams);
