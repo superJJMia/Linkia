@@ -15,6 +15,7 @@ const uid = () => `user-${Date.now()}-${sequence++}`;
 export function useCall(roomId) {
   const socketRef = useRef(null);
   const myIdRef = useRef(uid());
+  const mySocketIdRef = useRef(null); // socket.id real (usado p/ filtrar o próprio usuário)
   const localStreamRef = useRef(null);      // câmera + microfone (sempre)
   const screenStreamRef = useRef(null);     // tela local (quando compartilhando)
   const peersRef = useRef(new Map());       // socketId -> { pc, mediaStream, screenStream, screenSender }
@@ -218,6 +219,7 @@ export function useCall(roomId) {
   );
 
   const handleUserJoined = useCallback(({ id, nickname }) => {
+    if (id === myIdRef.current || id === mySocketIdRef.current) return;
     setParticipants((prev) => {
       if (prev.some((p) => p.id === id)) return prev;
       return [...prev, { id, nickname }];
@@ -226,10 +228,20 @@ export function useCall(roomId) {
 
   const handleRoomParticipants = useCallback(
     ({ participants: list }) => {
-      setParticipants((prev) => list.concat(prev || []));
-      const targets = list.map((p) => p.id);
+      setParticipants((prev) => {
+        const seen = new Set();
+        const merged = [...(list || []), ...(prev || [])];
+        return merged.filter((p) => {
+          if (p.id === myIdRef.current) return false;
+          if (p.id === mySocketIdRef.current) return false;
+          if (seen.has(p.id)) return false;
+          seen.add(p.id);
+          return true;
+        });
+      });
+      const targets = (list || []).map((p) => p.id);
       targets.forEach((id) => {
-        if (id !== myIdRef.current) {
+        if (id !== myIdRef.current && id !== mySocketIdRef.current) {
           connectToPeer(id);
         }
       });
@@ -244,6 +256,7 @@ export function useCall(roomId) {
     socketRef.current = socket;
 
     socket.on('connect', async () => {
+      mySocketIdRef.current = socket.id;
       try {
         await startLocalMedia();
       } catch (e) {
