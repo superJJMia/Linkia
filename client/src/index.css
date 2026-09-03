@@ -274,6 +274,23 @@ body {
   color: #4a5161;
 }
 
+.field input.input-locked {
+  background: rgba(46, 230, 255, 0.05);
+  border-color: rgba(46, 230, 255, 0.3);
+  color: var(--cyan);
+  font-family: var(--ft-title);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: default;
+  box-shadow: inset 0 0 18px rgba(46, 230, 255, 0.06);
+}
+
+.field input.input-locked:focus {
+  box-shadow: inset 0 0 18px rgba(46, 230, 255, 0.06);
+  border-color: rgba(46, 230, 255, 0.3);
+}
+
 .btn {
   font-family: var(--ft-title);
   text-transform: uppercase;
