@@ -16,6 +16,8 @@ Exemplo Render:
 - **Build Command:** `npm install`
 - **Start Command:** `npm start`
 
+> **Automático:** o repositório inclui `server/render.yaml` (Blueprint). Se você linkar o repo no Render e apontar para o `render.yaml`, a infra é criada sozinha, sem configurar Build/Start na mão. Há também um `server/Dockerfile` caso prefira subir como container.
+
 Anote a URL pública gerada (ex: `https://linkia-server.onrender.com`).
 
 ## 2. Frontend (Vercel)
