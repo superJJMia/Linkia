@@ -187,14 +187,14 @@ body {
   font-family: var(--ft-title);
   font-weight: 900;
   font-size: clamp(42px, 8vw, 72px);
-  letter-spacing: 0.16em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--white);
   filter: drop-shadow(0 0 26px var(--glow));
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.35em;
+  gap: 0.18em;
   animation: floatY 5s ease-in-out infinite, glowPulse 4s ease-in-out infinite;
 }
 
