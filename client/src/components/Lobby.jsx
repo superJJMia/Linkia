@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function generateRoomCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -13,6 +13,12 @@ export default function Lobby({ onEnter }) {
   const [nickname, setNickname] = useState('');
   const [roomCode, setRoomCode] = useState('');
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const room = (params.get('room') || '').trim().toUpperCase();
+    if (room) setRoomCode(room);
+  }, []);
+
   const startNew = () => {
     onEnter({ nickname: nickname.trim() || 'Participante', roomId: generateRoomCode(), isNew: true });
   };
@@ -25,8 +31,14 @@ export default function Lobby({ onEnter }) {
 
   return (
     <div className="lobby">
-      <div className="lobby-logo">Linkia</div>
-      <div className="lobby-card">
+      <div className="lobby-logo animate-up">
+        Li<b>nk</b>ia
+      </div>
+      <p className="holo-line animate-up d1">⟨ chamadas de vídeo · sala remota ⟩</p>
+      <p className="lobby-tagline animate-up d2">
+        Entre em uma sala para conversar por vídeo, compartilhar a tela e trocar mensagens em tempo real.
+      </p>
+      <div className="lobby-card animate-scale d3">
         <div className="field">
           <label htmlFor="nickname">Seu nome</label>
           <input

@@ -28,9 +28,11 @@ function getRoom(roomId) {
 
 function joinRoom(socket, { roomId, nickname }) {
   const room = getRoom(roomId);
-  room.set(socket.id, { nickname });
+  const clean = (nickname || '').trim() || 'Participante';
+  room.set(socket.id, { nickname: clean });
   socket.join(roomId);
   socket.data.roomId = roomId;
+  socket.data.nickname = clean;
 
   // Avisa os demais participantes da sala que alguém entrou
   const participants = [...room.entries()].map(([id, data]) => ({ id, nickname: data.nickname }));
@@ -89,6 +91,27 @@ io.on('connection', (socket) => {
       message,
       timestamp: Date.now(),
     });
+  });
+
+  // Estado de fala (sinaliza aos demais quem está falando)
+  socket.on('speaking', ({ roomId, speaking }) => {
+    socket.to(roomId).emit('peer-speaking', { id: socket.id, speaking });
+  });
+
+  // Estado do compartilhamento de tela
+  socket.on('screen-state', ({ roomId, streaming }) => {
+    socket.to(roomId).emit('peer-screen', { id: socket.id, streaming });
+  });
+
+  // Atualização de apelido no meio da chamada
+  socket.on('update-nickname', ({ roomId, nickname }) => {
+    const clean = (nickname || '').trim() || 'Participante';
+    socket.data.nickname = clean;
+    const room = rooms.get(roomId);
+    if (room && room.has(socket.id)) {
+      room.set(socket.id, { nickname: clean });
+    }
+    socket.to(roomId).emit('peer-nickname', { id: socket.id, nickname: clean });
   });
 });
 

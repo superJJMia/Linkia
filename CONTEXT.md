@@ -65,11 +65,15 @@ Linkia/
 | 2026-09-02 | Stack aprovada: React + Node (Express + Socket.io) + WebRTC. Sem login (anônimo via link/código). |
 | 2026-09-02 | Scaffold inicial criado: servidor (Express+Socket.io, sinalização e chat) e cliente (React+Vite). Vite servindo na porta 3001, servidor em 4000. |
 | 2026-09-02 | `start.cmd` criado na raiz para iniciar servidor e cliente de uma vez. |
+| 2026-09-02 | Visual repaginado inspirado em https://super-mia-chi.vercel.app/ (estilo futurista-tech, tema escuro, tipografia Orbitron/Rajdhani/Share Tech Mono, clip-path angular, scanlines, starfield, glow ciano). Correção de responsividade: `.call` com `height:100vh` + `overflow:hidden`, controles sempre fixos sem sumir, chat vira painel flutuante no mobile. |
+| 2026-09-02 | Animacões adicionadas: transições de tela (fade/up/scale), entrada em cascata de tiles/controles/mensagens, chat com slide lateral + backdrop, hover com shimmer nos botões, logo flutuando com glow pulse, botão de encerrar com pulse de perigo, micro-interações de clique. |
+| 2026-09-02 | Destaque visual para quem está falando: hook `useSpeaking` (Web Audio AnalyserNode, limiar RMS + hold), evento `speaking`/`peer-speaking` no servidor para sincronizar entre participantes, `speakingPeers` no useCall. Tile do falante ganha borda/glow ciano pulsante + badge "Ao vivo". Também corrigido bug de tela em branco por troca de `localStream` de ref->estado. |
+| 2026-09-02 | Layout estilo Google Meet: ao compartilhar tela, a tela vai para painel grande em destaque no centro e a camera propria + demais participantes ficam em coluna lateral. Compartilhamento virou STREAM separado (addTrack + renegociacao), nao mais replaceTrack. Socket events screen-state/peer-screen + seletor de layout (Auto/Destaque/Grade). |
 
 ## Estado Atual da Implementação
 
 - **Feito:** lobby (nome + criar/entrar com código), conexão Socket.io, sinalização WebRTC ponto-a-ponto (offer/answer/ICE), vídeo/áudio via getUserMedia, toggles de mudo e câmera, chat em tempo real, grid de vídeos, lista de participantes no servidor.
-- **Em andamento / pendente de validação no browser:** streaming de tela (getDisplayMedia + replaceTrack) — implementado mas precisa de teste real com 2 abas/navegadores, pois exige HTTPS ou localhost.
+- **Em andamento / pendente de validação no browser:** streaming de tela agora como stream separado (getDisplayMedia + addTrack + renegociação) com layout estilo Meet (tela em destaque + coluna lateral). Precisa de teste real com 2 abas/navegadores, pois exige HTTPS ou localhost.
 - **Nota:** para vídeo entre 2 máquinas pela internet falta adicionar servidor TURN (não incluído ainda).
 
 ---
@@ -87,4 +91,4 @@ Linkia/
   ```powershell
   $env:PATH = "C:\Program Files\nodejs;" + $env:PATH; & "C:\Program Files\nodejs\node.exe" node_modules\vite\bin\vite.js --port 3001
   ```
-- Git user: MeowA / meow@ahmiau.com ; GitHub: jordan23Reis
+- Git user: MeowA / meow@ahmiau.com ; GitHub: superJJMia (renomeado de jordan23Reis)
