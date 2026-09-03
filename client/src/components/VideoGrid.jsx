@@ -1,4 +1,22 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+function useWindowWidth() {
+  const [w, setW] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const onResize = () => setW(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return w;
+}
+
+// Quantidade máxima de vídeos visíveis de acordo com a largura da tela.
+// Mínimo 3 em todos os cenários; até 5 nas telas mais largas.
+function maxTilesFor(width) {
+  if (width < 700) return 3;
+  if (width < 1100) return 4;
+  return 5;
+}
 
 function VideoTile({ stream, label, muted, speaking, badge }) {
   const ref = useRef(null);
@@ -58,6 +76,7 @@ export default function VideoGrid({
   streams,
   layout,
 }) {
+  const width = useWindowWidth();
   const myActive = myStream && camOn;
   const mySpeaking = localSpeaking && micOn;
 
@@ -79,6 +98,18 @@ export default function VideoGrid({
     })),
   ];
 
+  // Prioridade de exibição ao limitar a quantidade de tiles:
+  // 1) O próprio usuário (tela principal do streamer) - sempre presente
+  // 2) Quem está falando
+  // 3) Demais participantes
+  const score = (t) => (t.id === 'me' ? 100 : t.speaking ? 80 : 10);
+
+  // Seleciona até maxTiles câmeras, priorizando falantes e o próprio usuário
+  const selectTiles = (tiles, max) =>
+    [...tiles]
+      .sort((a, b) => score(b) - score(a))
+      .slice(0, max);
+
   // Telas dos peers
   const remoteScreens = screenStreams.map((s) => ({
     id: s.id,
@@ -90,6 +121,13 @@ export default function VideoGrid({
   const hasLocalScreen = screenOn && localScreenStream;
   const totalScreens = (hasLocalScreen ? 1 : 0) + remoteScreens.length;
 
+  const maxTiles = maxTilesFor(width);
+  const selectedCams = selectTiles(cameraTiles, maxTiles);
+  const tileCount = Math.max(
+    3,
+    Math.min(5, selectedCams.length + (hasLocalScreen ? 1 : 0) + remoteScreens.length)
+  );
+
   // Modo grade (forçado) -> tudo em grade uniforme
   if (layout === 'grid') {
     const allTiles = [
@@ -97,10 +135,11 @@ export default function VideoGrid({
         ? [{ id: 'me-screen', stream: localScreenStream, label: `${myNickname} · tela`, muted: true, badge: 'screen-tile' }]
         : []),
       ...remoteScreens,
-      ...cameraTiles,
+      ...selectTiles(cameraTiles, Math.max(0, maxTiles - (hasLocalScreen ? 1 : 0) - remoteScreens.length)),
     ];
+    const count = Math.max(3, Math.min(5, allTiles.length));
     return (
-      <div className="call-stage grid">
+      <div className={`call-stage grid tiles-${count}`}>
         {allTiles.map((t) => (
           <VideoTile key={t.id} {...t} />
         ))}
@@ -113,8 +152,8 @@ export default function VideoGrid({
 
   if (!hasSpotlight) {
     return (
-      <div className="call-stage grid">
-        {cameraTiles.map((t) => (
+      <div className={`call-stage grid tiles-${tileCount}`}>
+        {selectedCams.map((t) => (
           <VideoTile key={t.id} {...t} />
         ))}
       </div>
@@ -132,11 +171,11 @@ export default function VideoGrid({
       muted: true,
       badge: 'screen-tile',
     };
-    sidebar = [...remoteScreens, ...cameraTiles];
+    sidebar = [...remoteScreens, ...selectedCams];
   } else if (remoteScreens.length > 0) {
     featured = { ...remoteScreens[0] };
     // A tela destacada não entra na coluna
-    sidebar = [...remoteScreens.slice(1), ...cameraTiles];
+    sidebar = [...remoteScreens.slice(1), ...selectedCams];
   }
 
   return (
