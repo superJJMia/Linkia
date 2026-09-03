@@ -49,6 +49,11 @@ export default function Lobby({ onEnter }) {
   return (
     <div className="lobby">
       <div className="lobby-logo animate-up">
+        <svg className="lobby-logo-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <rect x="6" y="18" width="34" height="29" rx="7" fill="none" stroke="var(--cyan)" strokeWidth="4.5"/>
+          <circle cx="23" cy="32.5" r="8" fill="var(--cyan)"/>
+          <path d="M40 28 51 20v25l-11-8z" fill="var(--cyan)"/>
+        </svg>
         Li<b>nk</b>ia
       </div>
       {pendingRoom ? (

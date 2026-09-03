@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="75%">
+      <stop offset="0%" stop-color="#0a1220"/>
+      <stop offset="100%" stop-color="#04060c"/>
+    </radialGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5ff3ff"/>
+      <stop offset="100%" stop-color="#2ee6ff"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="1" y="1" width="62" height="62" rx="16" fill="url(#bg)" stroke="#1b2a3a" stroke-width="1.5"/>
+
+  <!-- Câmera -->
+  <rect x="12" y="22" width="26" height="22" rx="5" fill="none" stroke="url(#cyan)" stroke-width="4"/>
+  <!-- Lente -->
+  <circle cx="25" cy="33" r="6" fill="url(#cyan)"/>
+  <!-- Corpo da câmera (triângulo do corpo) -->
+  <path d="M38 31 46 26v16l-8-5z" fill="url(#cyan)"/>
+  <!-- Brilho -->
+  <circle cx="20" cy="28" r="1.6" fill="#eaffff" opacity="0.9"/>
+</svg>

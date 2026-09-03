@@ -192,7 +192,16 @@ body {
   color: var(--white);
   filter: drop-shadow(0 0 26px var(--glow));
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
   animation: floatY 5s ease-in-out infinite, glowPulse 4s ease-in-out infinite;
+}
+
+.lobby-logo-icon {
+  width: 0.85em;
+  height: 0.85em;
+  flex: none;
 }
 
 .lobby-logo b {
