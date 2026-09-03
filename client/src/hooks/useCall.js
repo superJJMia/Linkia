@@ -33,6 +33,7 @@ export function useCall(roomId) {
   const [camOn, setCamOn] = useState(true);
   const [screenOn, setScreenOn] = useState(false);
   const [screenUsers, setScreenUsers] = useState(new Set()); // ids que estão compartilhando tela
+  const [screenError, setScreenError] = useState(null); // aviso de falha no compartilhamento de tela
   const [speakingPeers, setSpeakingPeers] = useState(new Set());
   const localSpeakingRef = useRef(false);
 
@@ -345,31 +346,44 @@ export function useCall(roomId) {
       await stopScreenShare();
       return;
     }
-    const displayStream = await navigator.mediaDevices.getDisplayMedia({
-      video: true,
-      audio: false,
-    });
-    if (!localStreamRef.current) {
-      displayStream.getTracks().forEach((t) => t.stop());
+    if (!navigator.mediaDevices?.getDisplayMedia) {
+      setScreenError('Seu navegador não suporta o compartilhamento de tela.');
+      setTimeout(() => setScreenError(null), 4000);
       return;
     }
-    const screenTrack = displayStream.getVideoTracks()[0];
-    screenTrack.addEventListener('ended', () => {
-      stopScreenShare();
-    });
-    screenStreamRef.current = displayStream;
+    try {
+      const displayStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: false,
+      });
+      if (!localStreamRef.current) {
+        displayStream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+      const screenTrack = displayStream.getVideoTracks()[0];
+      screenTrack.addEventListener('ended', () => {
+        stopScreenShare();
+      });
+      screenStreamRef.current = displayStream;
 
-    // Adiciona a track de tela em cada peer existente e negocia novamente
-    for (const [id, peer] of peersRef.current.entries()) {
-      if (peer.screenSender) continue;
-      const sender = peer.pc.addTrack(screenTrack, displayStream);
-      peer.screenSender = sender;
-      await renegotiate(id);
+      // Adiciona a track de tela em cada peer existente e negocia novamente
+      for (const [id, peer] of peersRef.current.entries()) {
+        if (peer.screenSender) continue;
+        const sender = peer.pc.addTrack(screenTrack, displayStream);
+        peer.screenSender = sender;
+        await renegotiate(id);
+      }
+
+      setScreenOn(true);
+      setLocalScreenStream(displayStream);
+      socketRef.current?.emit('screen-state', { roomId, streaming: true });
+    } catch (err) {
+      // Usuário cancelou a seleção (NotAllowedError/AbortError) ou falhou por outro motivo.
+      if (err?.name !== 'NotAllowedError' && err?.name !== 'AbortError') {
+        setScreenError('Não foi possível compartilhar a tela.');
+        setTimeout(() => setScreenError(null), 4000);
+      }
     }
-
-    setScreenOn(true);
-    setLocalScreenStream(displayStream);
-    socketRef.current?.emit('screen-state', { roomId, streaming: true });
   }, [screenOn, roomId, renegotiate]);
 
   const stopScreenShare = useCallback(async () => {
@@ -438,6 +452,8 @@ export function useCall(roomId) {
     camOn,
     screenOn,
     screenUsers,
+    screenError,
+    clearScreenError: () => setScreenError(null),
     speakingPeers,
     participants,
     streams,

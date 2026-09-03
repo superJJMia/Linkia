@@ -136,6 +136,14 @@ export default function App() {
               myKey={call.myKey}
             />
           </div>
+          {call.screenError && (
+            <div className="screen-error" role="alert">
+              <span>{call.screenError}</span>
+              <button onClick={call.clearScreenError} title="Fechar">
+                ✕
+              </button>
+            </div>
+          )}
           <Controls
             micOn={call.micOn}
             camOn={call.camOn}
