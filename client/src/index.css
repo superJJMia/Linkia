@@ -399,20 +399,15 @@ body {
   animation: fadeIn 0.7s ease both;
 }
 
-/* Controle do número de colunas conforme a quantidade de tiles exibidos.
-   Colunas fixas garantem que todos os tiles cabem sem cortar (overflow). */
-.call-stage.grid.tiles-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.call-stage.grid.tiles-4 {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.call-stage.grid.tiles-5 {
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: minmax(0, 1fr);
-}
+/* Distribuição proporcional dos tiles: o número de colunas acompanha a
+   quantidade de vídeos exibidos, fazendo cada tile ocupar a fração justa
+   da tela (1 ocupa tudo, 2 dividem ao meio, 3 dividem em terços, etc.). */
+.call-stage.grid.cols-1 { grid-template-columns: minmax(0, 1fr); }
+.call-stage.grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.call-stage.grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.call-stage.grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.call-stage.grid.cols-5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.call-stage.grid.cols-6 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 /* ===== Apresentação estilo Meet: tela em destaque + coluna lateral ===== */
 .layout-spotlight {
@@ -1279,16 +1274,14 @@ body {
   }
 
   .call-stage {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   }
 
-  .call-stage.grid.tiles-3 {
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  }
-
-  .call-stage.grid.tiles-4,
-  .call-stage.grid.tiles-5 {
-    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  .call-stage.grid.cols-3,
+  .call-stage.grid.cols-4,
+  .call-stage.grid.cols-5,
+  .call-stage.grid.cols-6 {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   }
 
   .layout-spotlight {

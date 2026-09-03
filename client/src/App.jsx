@@ -131,6 +131,7 @@ export default function App() {
               screenOn={call.screenOn}
               localScreenStream={call.localScreenStream}
               streams={call.streams}
+              participants={call.participants}
               layout={layout}
             />
             <ChatPanel
