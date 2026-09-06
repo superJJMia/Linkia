@@ -34,6 +34,7 @@ export function useCall(roomId) {
   const [screenOn, setScreenOn] = useState(false);
   const [screenUsers, setScreenUsers] = useState(new Set()); // ids que estão compartilhando tela
   const [screenError, setScreenError] = useState(null); // aviso de falha no compartilhamento de tela
+  const [cameraId, setCameraId] = useState(''); // deviceId da câmera selecionada
   const [speakingPeers, setSpeakingPeers] = useState(new Set());
   const localSpeakingRef = useRef(false);
 
@@ -105,14 +106,17 @@ export function useCall(roomId) {
   }, []);
 
   const createPeer = useCallback(
-    (targetId) => {
+    (targetId, peerObj) => {
       const pc = new RTCPeerConnection(RTC_CONFIG);
       const localStream = localStreamRef.current;
+      let videoSender = null;
       if (localStream) {
         for (const track of localStream.getTracks()) {
-          pc.addTrack(track, localStream);
+          const sender = pc.addTrack(track, localStream);
+          if (track.kind === 'video') videoSender = sender;
         }
       }
+      if (peerObj) peerObj.videoSender = videoSender;
       pc.onnegotiationneeded = () => {
         renegotiate(targetId);
       };
@@ -141,8 +145,10 @@ export function useCall(roomId) {
   const connectToPeer = useCallback(
     async (targetId) => {
       if (peersRef.current.has(targetId)) return;
-      const pc = createPeer(targetId);
-      peersRef.current.set(targetId, { pc, mediaStream: null, screenStream: null, screenSender: null });
+      const peerObj = { pc: null, mediaStream: null, screenStream: null, screenSender: null, videoSender: null };
+      const pc = createPeer(targetId, peerObj);
+      peerObj.pc = pc;
+      peersRef.current.set(targetId, peerObj);
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
@@ -341,6 +347,61 @@ export function useCall(roomId) {
     });
   }, []);
 
+  // Lista as câmeras disponíveis no dispositivo
+  const getCameras = useCallback(async () => {
+    if (!navigator.mediaDevices?.enumerateDevices) return [];
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      return devices
+        .filter((d) => d.kind === 'videoinput')
+        .map((d, i) => ({ deviceId: d.deviceId, label: d.label || `Câmera ${i + 1}` }));
+    } catch (e) {
+      console.warn('Falha ao listar câmeras', e);
+      return [];
+    }
+  }, []);
+
+  // Troca a câmera em uso, aplicando a nova track em todos os peers (replaceTrack)
+  const setCamera = useCallback(async (deviceId) => {
+    const local = localStreamRef.current;
+    if (!local || !navigator.mediaDevices?.getUserMedia) return;
+    try {
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: deviceId ? { deviceId: { exact: deviceId } } : true,
+        audio: false,
+      });
+      const newTrack = newStream.getVideoTracks()[0];
+      if (!newTrack) {
+        newStream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+      newTrack.enabled = camOn;
+
+      // Substitui a track de vídeo da stream local
+      const oldTracks = local.getVideoTracks();
+      oldTracks.forEach((t) => {
+        local.removeTrack(t);
+        t.stop();
+      });
+      local.addTrack(newTrack);
+
+      // Aplica a nova track em cada peer existente
+      for (const [, peer] of peersRef.current.entries()) {
+        if (peer.videoSender && peer.pc) {
+          try {
+            await peer.videoSender.replaceTrack(newTrack);
+          } catch (e) {
+            console.warn('Falha ao trocar track de vídeo no peer', e);
+          }
+        }
+      }
+
+      setCameraId(deviceId);
+    } catch (e) {
+      console.warn('Falha ao trocar câmera', e);
+    }
+  }, [setCameraId, camOn]);
+
   const toggleScreen = useCallback(async () => {
     if (screenOn) {
       await stopScreenShare();
@@ -464,6 +525,9 @@ export function useCall(roomId) {
     toggleCam,
     toggleScreen,
     stopScreenShare,
+    getCameras,
+    setCamera,
+    cameraId,
     broadcastSpeaking,
     leave,
   };

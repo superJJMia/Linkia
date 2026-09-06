@@ -169,6 +169,9 @@ export default function App() {
             roomLink={roomLink}
             layout={layout}
             setLayout={setLayout}
+            getCameras={call.getCameras}
+            setCamera={call.setCamera}
+            cameraId={call.cameraId}
           />
         </div>
       )}

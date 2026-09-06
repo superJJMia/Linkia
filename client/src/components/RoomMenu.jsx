@@ -11,13 +11,23 @@ export default function RoomMenu({
   roomLink,
   layout,
   setLayout,
+  getCameras,
+  setCamera,
+  cameraId,
 }) {
   const [name, setName] = useState(myNickname);
   const [copied, setCopied] = useState(null);
+  const [cameras, setCameras] = useState([]);
 
   useEffect(() => {
     if (open) setName(myNickname);
   }, [open, myNickname]);
+
+  useEffect(() => {
+    if (open && getCameras) {
+      getCameras().then(setCameras);
+    }
+  }, [open, getCameras]);
 
   const copy = async (text, key) => {
     try {
@@ -110,6 +120,27 @@ export default function RoomMenu({
               </button>
             ))}
           </div>
+        </section>
+
+        <section className="room-section">
+          <h3 className="room-title">Câmera</h3>
+          <select
+            className="room-camera-select"
+            value={cameraId}
+            onChange={(e) => setCamera(e.target.value)}
+          >
+            <option value="">Padrão do sistema</option>
+            {cameras.map((c) => (
+              <option key={c.deviceId} value={c.deviceId}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          {cameras.length === 0 && (
+            <span className="room-hint">
+              Nenhuma câmera adicional detectada neste dispositivo.
+            </span>
+          )}
         </section>
 
         <section className="room-section">

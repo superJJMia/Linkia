@@ -1166,6 +1166,35 @@ body {
   cursor: not-allowed;
 }
 
+.room-camera-select {
+  width: 100%;
+  background: var(--black-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--white);
+  font-family: var(--ft-body);
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: border-color 0.25s, box-shadow 0.3s;
+}
+
+.room-camera-select:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px var(--glow);
+}
+
+.room-hint {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--ft-mono);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--grey);
+  opacity: 0.8;
+}
+
 .room-seg {
   display: flex;
   border: 1px solid var(--line);
